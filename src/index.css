@@ -1,0 +1,19 @@
+@import url('https://fonts.googleapis.com/css?family=IBM+Plex+Sans');
+html {
+  min-height: 100vh;
+  background-color: #531253;
+  font-family: 'IBM Plex Sans', sans-serif;
+}
+body {
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  color: #99E1D9;
+}
+h1 {
+  font-size: 40px;
+}
+
+h2 {
+  font-size: 24px;
+}
