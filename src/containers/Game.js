@@ -7,7 +7,6 @@ import { initState } from '../data/state'
 import { Gridix } from './Gridix';
 import { lines } from '../data/lines'
 
-
 const Board = styled.div`
     margin: 0 auto;
 `
@@ -61,7 +60,7 @@ const Btn = styled.div`
     padding: 10px;
     font-size: 28px;
     width: 300px;
-    margin: 20px auto;
+    margin: 60px auto;
 `
 //need component that asks user to choose x or o
 /**
@@ -91,7 +90,18 @@ export default class Game extends Component {
             }      
         })
         if (test === true){
+            const {score} = this.state
+            const pointAdded = (player === "human") ? 
+            {
+                human: score.human + 1,
+                computer: score.computer
+            } : 
+            {
+                human: score.human,
+                computer: score.computer + 1
+            }
             this.setState({ 
+                score: pointAdded,
                 gameover: true,
                 winnerIs: player
             })
@@ -108,13 +118,14 @@ export default class Game extends Component {
     computerPlays = () =>{
         //TODO: make sure that computer cant pick the same choice twice. If its all out of options then it should print and terminate.
         const ray = this.state.memory
+        const {winnerIs} = this.state
         const rng = Math.round(Math.random() * (ray.length - 1))
         const compChoice = ray[rng];
-        if (compChoice !== undefined){
+        if ((compChoice !== undefined) && (winnerIs === "")){
             ray.splice(ray.indexOf(compChoice), 1)
             this.state.computerChoices.push(compChoice)
             this.setState({ memory: ray });
-            this.winCheck(this.state.computerChoices, "Computer")
+            this.winCheck(this.state.computerChoices, "computer")
             console.log("Thse are what the computer chose" + this.state.computerChoices)
         } else {
             console.log("compChoice variable is undefined \n rng: %s , memory: %s, memory length: %s", rng, ray, ray.length)
@@ -134,7 +145,7 @@ export default class Game extends Component {
             });
         }
         console.log(this.state.humanChoices)
-        this.winCheck(this.state.humanChoices, "Human")
+        this.winCheck(this.state.humanChoices, "human")
     }
     handleSboxClick = choice =>{
         //pick who is x and who is o
@@ -165,9 +176,40 @@ export default class Game extends Component {
             memory: ["1", "2", "3", "4", "5", "6", "7", "8", "9"],
             computerChoices: [],
             humanChoices: [],
-            gameover: false
+            gameover: false,
+            winnerIs: ""
          })
         console.log(this.state.computerChoices)
+    }
+    
+    restart = () =>{
+        this.setState({
+            users: {
+                human: '',
+                computer: ' ',
+                selectionMade: false
+            },
+            score: {
+                human: 0,
+                computer: 0
+            },
+            winnerIs: "",
+            gameover: false,
+            turn: "human",
+            memory: ["1", "2", "3", "4", "5", "6", "7", "8", "9"],
+            computerChoices: [],
+            humanChoices: [],
+            winConditions: [
+                ["1", "2", "3"],
+                ["4", "5", "6"],
+                ["7", "8", "9"],
+                ["1", "4", "7"],
+                ["2", "5", "8"],
+                ["3", "6", "9"],
+                ["1", "5", "9"],
+                ["3", "5", "7"]
+            ]
+        })
     }
     
 //TODO: make
@@ -200,10 +242,13 @@ export default class Game extends Component {
                     vertical, or diagonal row wins the game."
                     - Wikipedia
                 </div>
-                <Useris viz={users.selectionMade} className="Headers" > User is { users.human }</Useris>
+        
                 <Play onClick={this.handleSboxClick} viz={users.selectionMade}/>
                 <BoardBox viz={users.selectionMade}>
-                    <Score />
+                    <Score 
+                        roles={users}
+                        score={score}
+                        />
                     <Board>
                         <Gridix
                         dx={3} dy={3} lines={lines}
@@ -215,7 +260,7 @@ export default class Game extends Component {
                         humChoice={humanChoices}
                         /> 
 
-                        <Btn onClick={this.reset} > Reset </Btn>
+                        <Btn onClick={this.restart} > Reset </Btn>
                     </Board>
                 </BoardBox>
             </Col>
